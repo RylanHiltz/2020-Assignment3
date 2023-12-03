@@ -15,7 +15,7 @@ public interface ISearchable<T> : IContainer<T>
 {
     void Insert(T item);
     bool Remove(T item);
-    bool Contains(T item);
+    bool Contains(T item); 
 }
 
 //-------------------------------------------------------------------------
@@ -175,43 +175,45 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
 
     public void Insert(T item)
     {
-        //Node<T> p = new Node<T>(item);
+        Node<T> p = new Node<T>(item);
 
-        //if (root == null)                          // If the tree is empty      
-        //root = p;                              // Create a new root at p
+        if (root == null)
+        {
+            root = p;                              // Create a new root at p
+        }
 
-        //else
-        //{
-        //    root = Splay(item, root);             // Splay item to the root
+        else
+        {
+            root = Splay(item, root);             // Splay item to the root
 
-        //    // Item not in the splay tree
-        //    if (item.CompareTo(root.Item) != 0)
-        //    {
+            // Item not in the splay tree
+            if (item.CompareTo(root.Item) != 0)
+            {
 
-        //        // Item is less than root
-        //        if (item.CompareTo(root.Item) < 0)
-        //        {
-        //            p.Right = root;                    // Set right child of p to root
-        //            p.Left = root.Left;                // Set left child of p to root.Left
-        //            root.Left = null;
-        //            S.Push(root.Item);
-        //        }
-        //        else
+                // Item is less than root
+                if (item.CompareTo(root.Item) < 0)
+                {
+                    p.Right = root;                    // Set right child of p to root
+                    p.Left = root.Left;                // Set left child of p to root.Left
+                    root.Left = null;
 
-        //        // Item is greater than root
-        //        if (item.CompareTo(root.Item) > 0)
-        //        {
-        //            p.Left = root;                     // Set left child of p to root
-        //            p.Right = root.Right;              // Set right child of p to root.Right
-        //            root.Right = null;
-        //        }
+                }
+                else
 
-        //        // Sets p as the new root
-        //        root = p;
-        //    }
-        //    else
-        //    throw new InvalidOperationException("Duplicate item");
-        //}
+                // Item is greater than root
+                if (item.CompareTo(root.Item) > 0)
+                {
+                    p.Left = root;                     // Set left child of p to root
+                    p.Right = root.Right;              // Set right child of p to root.Right
+                    root.Right = null;
+                }
+
+                // Sets p as the new root
+                root = p;
+            }
+            else
+                throw new InvalidOperationException("Duplicate item");
+        }
     }
 
     // Public Remove
@@ -223,29 +225,29 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
 
     public bool Remove(T item)
     {
-        //Node<T> temp;
+        Node<T> temp;
 
-        //if (root != null)                          // Tree not empty (else do nothing)
-        //{
-        //    root = Splay(item, root);              // Splay item to the root
-        //    if (item.CompareTo(root.Item) == 0)    // Item found at root (else do nothing)
-        //    {
-        //        if (root.Left == null)             // No left child
-        //            root = root.Right;             // New root is its right child           
-        //        else
-        //        {
-        //            temp = root;                   // Store the old root
-        //            root = Splay(item, root.Left); // New root is the maximum child of left subtree
-        //                                            // Note that the last item visited is the maximum item
-        //            root.Right = temp.Right;       // Connect new root with the right subtree
-        //        }
-        //        return true;
-        //    }
-        //    else
-        //    return false;
-        //}
-        //else
-        //return false;
+        if (root != null)                          // Tree not empty (else do nothing)
+        {
+            root = Splay(item, root);              // Splay item to the root
+            if (item.CompareTo(root.Item) == 0)    // Item found at root (else do nothing)
+            {
+                if (root.Left == null)             // No left child
+                    root = root.Right;             // New root is its right child           
+                else
+                {
+                    temp = root;                   // Store the old root
+                    root = Splay(item, root.Left); // New root is the maximum child of left subtree
+                                                   // Note that the last item visited is the maximum item
+                    root.Right = temp.Right;       // Connect new root with the right subtree
+                }
+                return true;
+            }
+            else
+                return false;
+        }
+        else
+            return false;
     }
 
     // Public Contains
@@ -254,13 +256,15 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
 
     public bool Contains(T item)
     {
-        //if (root == null)   // Empty splay tree
-        //    return false;
-        //else
-        //{
-        //    root = Splay(item, root);              // Splay item to the root
-        //    return item.CompareTo(root.Item) == 0; // Compare item with that at the root
-        //}
+        if (root == null)   // Empty splay tree
+            return false;
+        else
+        {
+            root = Splay(item, root);              // Splay item to the root
+
+            return item.CompareTo(root.Item) == 0; // Compare item with that at the root
+
+        }
     }
 
     // MakeEmpty
@@ -332,7 +336,33 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
 
     public object Clone()
     {
-        return;
+        // Checks if the root of the original tree is null 
+        if (root == null)
+        {
+            throw new InvalidOperationException();
+        }
+
+        // Creates a new node to store the root 
+        Node<T> newRoot = CopyNode(root);
+
+        // Creates new splay tree to store clone
+        SplayTree<T> DeepCopy = new SplayTree<T>();
+        DeepCopy.root = newRoot;
+
+        return DeepCopy;
+    }
+
+    // Recursive pre-roder traversal helper method
+    public Node<T> CopyNode(Node<T> root)
+    {
+        // Create new node to copy root 
+        Node<T> newNode = root;
+
+        // Copy left and right subtrees of the root
+        newNode.Left = root.Left;
+        newNode.Right = root.Right;
+
+        return newNode;
     }
 
     public override bool Equals(Object t)
@@ -340,9 +370,24 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
         return true;
     }
 
-    public SplayTree<T> Undo()
+    //public SplayTree<T> Undo()
+    //{
+
+    //}
+
+    private Stack<T> Access(T item)
     {
         
+        Stack<T> reversedS = new Stack<T>();
+
+        while (S.Size() > 0)
+        {
+            item = S.Top();
+            S.Pop();
+            reversedS.Push(item);
+        }
+
+        return reversedS;
     }
 }
 
@@ -351,16 +396,20 @@ class Program
     static void Main(string[] args)
     {
         SplayTree<int> T = new SplayTree<int>();
+        SplayTree<int> DeepCopy = new SplayTree<int>();
+
 
         for (int i = 1; i <= 6; i++)
             T.Insert(i * 10);
+            
         T.Print();
-
-        // T.Insert(30);  
 
         Console.WriteLine(T.Contains(40));
         T.Print();
+        DeepCopy = (SplayTree<int>)T.Clone();
+        DeepCopy.Print();
 
+        throw new InvalidOperationException();
         Console.WriteLine(T.Contains(25));
         T.Print();
 

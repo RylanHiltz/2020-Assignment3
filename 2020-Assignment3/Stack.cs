@@ -127,15 +127,15 @@ class Stack<T> : IStack<T>
 
     //---------------------------- METHOD TO DO ---------------------------------//
 
-    private Stack<T> Access(T item)
-    {
-        return;  
-    }
+    //private Stack<T> Access(T item)
+    //{
+    //    return;  
+    //}
 
-    private void Splay(Node<T> p, Stack<T> S)
-    {
+    //private void Splay(Node<T> p, Stack<T> S)
+    //{
 
-    }
+    //}
 
 }
 
