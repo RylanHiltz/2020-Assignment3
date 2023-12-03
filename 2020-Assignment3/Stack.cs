@@ -124,6 +124,19 @@ class Stack<T> : IStack<T>
             return A[top];
         }
     }
+
+    //---------------------------- METHOD TO DO ---------------------------------//
+
+    private Stack<T> Access(T item)
+    {
+        return;  
+    }
+
+    private void Splay(Node<T> p, Stack<T> S)
+    {
+
+    }
+
 }
 
 //-----------------------------------------------------------------------------
