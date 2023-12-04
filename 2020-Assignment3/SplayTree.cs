@@ -424,8 +424,6 @@ class Program
 
         Console.WriteLine(T.Remove(15));
         T.Print();
-
-        Console.ReadKey();
     }
 }
 
