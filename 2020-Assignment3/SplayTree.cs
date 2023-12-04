@@ -170,12 +170,11 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
     // adapted from https://www.geeksforgeeks.org/splay-tree-set-2-insert-delete/?ref=rp
 
     // Inserts an item into a splay tree
-    // An exception is throw if the item is already in the tree
-    // Amortized time complexity:  O(log n)
-
     public void Insert(T item)
     {
         Node<T> p = new Node<T>(item);
+
+        //Stack<T> S = Access(item);
 
         if (root == null)
         {
@@ -213,6 +212,11 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
             }
             else
                 throw new InvalidOperationException("Duplicate item");
+
+            //if (S.Count != 0)
+            //{
+            //    S.Clear();
+            //}
         }
     }
 
@@ -332,62 +336,91 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
         }
     }
 
-    //---------------------------- METHOD TO DO ---------------------------------//
+    //-------------------------- COMPLETED METHODS ---------------------------//
 
+    // ]\= a deep clone a splay tree 
     public object Clone()
     {
-        // Checks if the root of the original tree is null 
-        if (root == null)
-        {
-            throw new InvalidOperationException();
-        }
-
-        // Creates a new node to store the root 
-        Node<T> newRoot = CopyNode(root);
-
-        // Creates new splay tree to store clone
         SplayTree<T> DeepCopy = new SplayTree<T>();
-        DeepCopy.root = newRoot;
+
+        DeepCopy.root = CopyNode(root); 
 
         return DeepCopy;
     }
 
-    // Recursive pre-roder traversal helper method
-    public Node<T> CopyNode(Node<T> root)
+    // Recursive pre-order traversal helper method
+    public static Node<T> CopyNode(Node<T> root)
     {
-        // Create new node to copy root 
-        Node<T> newNode = root;
+        // Checks if the root of the original tree is null 
+        if (root == null)
+        {
+            return null;
+        }
 
-        // Copy left and right subtrees of the root
-        newNode.Left = root.Left;
-        newNode.Right = root.Right;
+        // Create new node to copy root 
+        Node<T> newNode = new Node<T>(root.Item);
+
+        //Copies left and right subtrees of the root
+        newNode.Left = CopyNode(root.Left);
+        newNode.Right = CopyNode(root.Right);
 
         return newNode;
     }
 
+    // 
     public override bool Equals(Object t)
     {
-        return true;
+        SplayTree<T> T = (SplayTree<T>)t;
+
+        Boolean equals = Equals(root, T.root);
+
+        if (equals == true)
+        {
+            Console.WriteLine("Trees are identical");
+            return true;
+        }
+        else if (equals == false)
+        {
+            Console.WriteLine("Tree are not identical");
+            return false;
+        }
+        else
+        {
+            throw new InvalidOperationException();
+        }
     }
 
-    //public SplayTree<T> Undo()
-    //{
+    private Boolean Equals(Node<T> root1, Node<T> root2)
+    {
+        // return if both trees are empty
+        if (root1 == null && root2 == null)
+        {
+            return true;
+        }
 
-    //}
+        // return if only one tree is empty and the other is not 
+        if (root1 != null && root2 != null)
+        {
+            return Equals(root1.Left, root2.Left) && Equals(root1.Right, root2.Right);
+        }
+
+        return false;
+    }
+
+    //---------------------------- METHOD TO DO ------------------------------//
+
+    public SplayTree<T> Undo()
+    {
+        SplayTree<T> a = new SplayTree<T>();
+
+        return a;
+    }
 
     private Stack<T> Access(T item)
     {
-        
-        Stack<T> reversedS = new Stack<T>();
+        Stack<T> a = new Stack<T>();
 
-        while (S.Size() > 0)
-        {
-            item = S.Top();
-            S.Pop();
-            reversedS.Push(item);
-        }
-
-        return reversedS;
+        return a;
     }
 }
 
@@ -400,30 +433,32 @@ class Program
 
 
         for (int i = 1; i <= 6; i++)
+        {
             T.Insert(i * 10);
-            
-        T.Print();
+        }
 
-        Console.WriteLine(T.Contains(40));
-        T.Print();
+        // TESTING: Creates Deep copy of T and Compares each tree to see if they are equal
+        Console.WriteLine("\n \nCreates Deep copy of T and Compares each tree to see if they are equal\n-------------------");
         DeepCopy = (SplayTree<int>)T.Clone();
+        T.Print();
         DeepCopy.Print();
+        T.Equals(DeepCopy);
 
-        throw new InvalidOperationException();
-        Console.WriteLine(T.Contains(25));
+        // TESTING: Inserts 56 and Removes 30 from T, then Compares T and the previous Deep Copy
+        Console.WriteLine("\nInserts 56 and Removes 30 from T, then Compares T and the previous Deep Copy\n-------------------");
+        T.Insert(56);
+        T.Remove(30);
+        //---------//
         T.Print();
+        DeepCopy.Print();
+        T.Equals(DeepCopy);
 
-        Console.WriteLine(T.Remove(20));
+        // TESTING: Recreates a new Deep Copy of T, then Compares T with new Deep Copy 
+        Console.WriteLine("\nRecreates a new Deep Copy of T, then Compares T with new Deep Copy\n-------------------");
+        DeepCopy = (SplayTree<int>)T.Clone();
         T.Print();
-
-        Console.WriteLine(T.Remove(60));
-        T.Print();
-
-        Console.WriteLine(T.Remove(30));
-        T.Print();
-
-        Console.WriteLine(T.Remove(15));
-        T.Print();
+        DeepCopy.Print();
+        T.Equals(DeepCopy);
 
         Console.ReadKey();
     }
