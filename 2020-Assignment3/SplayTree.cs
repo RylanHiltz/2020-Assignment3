@@ -22,7 +22,7 @@ public interface ISearchable<T> : IContainer<T>
 {
     void Insert(T item);
     bool Remove(T item);
-    bool Contains(T item); 
+    bool Contains(T item);
 }
 
 //-------------------------------------------------------------------------
@@ -47,7 +47,8 @@ public class Node<T> where T : IComparable
 
 class SplayTree<T> : ISearchable<T> where T : IComparable
 {
-    private Node<T> root;                // Reference to the root of a splay tree
+    public Node<T> root;                // Reference to the root of a splay tree
+    private Stack<Node<T>> accessPath;
 
     // Constructor
     // Initializes an empty splay tree
@@ -96,7 +97,7 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
 
     public int Size()
     {
-        return Size(root);      
+        return Size(root);
     }
 
     private int Size(Node<T> node)
@@ -111,7 +112,7 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
     {
         int indent = 0;
 
-        Print(root, indent); 
+        Print(root, indent);
         Console.WriteLine();
     }
 
@@ -200,140 +201,182 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
 
     //---------------------------- METHOD TO DO ------------------------------//
 
-    //Returns true if the item is found in an AVL Tree; false otherwise
-    public bool Contains(T item)
-    {
-        Stack<Node<T>> accessPath = Access(item);
-
-        if (root == null)
-        {
-            return false;
-        }
-        else
-        {
-            //Node<T> newRoot = new Node<T>(item);
-            //Splay(newRoot, accessPath);
-
-            //return item.CompareTo(root.Item) == 0;
-            return false;
-        }
-
-    }
-
-    // Inserts an item into a splay tree
+    //Non-recursive version of Insert
     public void Insert(T item)
     {
-        // Checks if the root of the splay tree exists
-        if (root == null)
+        if (root != null)
+        {
+            //sets curr to the root
+            Node<T> curr = root;
+            Stack<Node<T>> path = new Stack<Node<T>>();
+
+            while (curr != null)
+            {
+                //pushes the current node to the access path storage
+                path.Push(curr);
+                Console.WriteLine("pushed " + curr.Item);
+
+                //if the item is in the left subtree
+                if (item.CompareTo(curr.Item) < 0)
+                {
+                    curr = curr.Left;
+                }
+                //if the item is in the right subtree
+                else if (item.CompareTo(curr.Item) > 0)
+                {
+                    curr = curr.Right;
+                }
+                //splays when the insert runs into a duplicate
+                else
+                {
+                    //pops the top of the stack and splays it to the root
+                    Splay(path.Pop(), path);
+                    break;
+                }
+            }//EOL
+
+            if (curr == null)
+            {
+                Node<T> newNode = new Node<T>(item);
+                if (path.Count > 0)
+                {
+                    //final insert left
+                    if (item.CompareTo(path.Peek().Item) < 0)
+                    {
+                        path.Peek().Left = newNode;
+                    }
+                    //final insert right
+                    else
+                    {
+                        path.Peek().Right = newNode;
+                    }
+                }
+                Splay(newNode, path);
+            }
+        }
+        else
         {
             root = new Node<T>(item);
         }
-        else
-        {
-            // Creates access path stack used for splaying + rotations
-            Stack<Node<T>> accessPath = Access(item);
-            
+    }//EO Method
 
-            // Checks if the root in the stack is equal to the new item 
-            if (accessPath.Peek().Item.CompareTo(item) == 0)
+    //Non-recursive version of splay
+
+
+    private void Splay(Node<T> p, Stack<Node<T>> S)
+    {
+
+        //while (S.Count > 0)
+        //{
+        Node<T> n2 = (S.Count > 0) ? S.Pop() : null;
+        Node<T> n3 = (S.Count > 0) ? S.Pop() : null;
+
+        if (n2 != null)
+        {
+            //makes sure the third node isn't null
+            if (n3 != null)
             {
-                // Duplicate item [throw exception]
-                throw new InvalidOperationException("Duplicate Item Found.");
+
+                //if the item is in the left subtree
+                if (n3.Item.CompareTo(n2.Item) > 0)
+                {
+                    //right-right
+                    if (n2.Item.CompareTo(p.Item) > 0)
+                    {
+                        //rotates and reattaches to the right of the parent
+                        if (S.Peek().Item.CompareTo(RightRotate(n3).Item) < 0)
+                        {
+                            S.Peek().Right = n2;
+                        }
+                        //rotates and reattaches to the left of parent
+                        else
+                        {
+                            S.Peek().Left = n2;
+                        }
+
+                        //rotates and reattaches to the right of the parent
+                        if (S.Peek().Item.CompareTo(RightRotate(n2).Item) < 0)
+                        {
+                            S.Peek().Right = p;
+                        }
+                        //rotates and reattaches to the left of parent
+                        else
+                        {
+                            S.Peek().Left = p;
+                        }
+                    }
+                    //right-left
+                    else if (n2.Item.CompareTo(p.Item) < 0)
+                    {
+                        RightRotate(n2);
+                        LeftRotate(n3);
+                    }
+                }
+                //if the item is in the right subtree
+                else if (n3.Item.CompareTo(n2.Item) < 0)
+                {
+                    //left-left
+                    if (n2.Item.CompareTo(p.Item) < 0)
+                    {
+                        S.Peek().Right = n2;
+                        LeftRotate(n3);
+                        LeftRotate(n2);
+                    }
+                    //left right
+                    else if (n2.Item.CompareTo(p.Item) > 0)
+                    {
+                        LeftRotate(n2);
+                        RightRotate(n3);
+                    }
+                }
+
             }
+
             else
             {
-                Node<T> newNode = new Node<T>(item);
-
-                // Checks if the root is less than the new item 
-                if (accessPath.Peek().Item.CompareTo(item) < 0)
+                //left
+                if (n2.Item.CompareTo(p.Item) < 0)
                 {
-                    newNode.Left = accessPath.Pop();
-                    accessPath.Push(newNode);
+                    LeftRotate(n2);
+
                 }
-                // Checks if the root is greater than the new item
+                //right
                 else
                 {
-                    newNode.Right = accessPath.Pop(); 
-                    accessPath.Push(newNode);
+                    RightRotate(n2);
                 }
-                Splay(newNode, accessPath);
-                root = newNode;
             }
-        }
+            //}
+
+            Console.WriteLine("SPLAYED CORRECTLY??");
+        }//EOL
     }
 
-    private Stack<Node<T>> Access(T item)
+    private Stack<Node<T>> Access(Node<T> item)
     {
+
         // Creates a new stack of nodes 
-        Stack<Node<T>> accessPath = new Stack<Node<T>>();
-        Node<T> current = root;
-
-        // Checks if the current node is not equal to null
-        while (current != null)
+        if (accessPath == null)
         {
-            accessPath.Push(current);
-
-            // Item is less than current node
-            if (item.CompareTo(current.Item) < 0)
-            {
-                current = current.Left;
-            }
-            // Item is greater than current node
-            else if (item.CompareTo(current.Item) > 0)
-            {
-                current = current.Right;
-            }
-            else
-            {
-                break;
-            }
+            // Creates a new Stack
+            accessPath = new Stack<Node<T>>();
         }
+        accessPath.Push(item);
+
         // Return the stack
         return accessPath;
     }
 
-    private void Splay(Node<T> p, Stack<Node<T>> S)
+    public bool Contains(T item)
     {
-        while (S.Count() != 0)
+        if (accessPath.Peek().Item.CompareTo(item) == 0)
         {
-            Node<T> p_parent = S.Pop();
-            Node<T> grandparent = S.Count() > 0 ? S.Peek() : null;
-
-            if (grandparent != null)
-            {
-                if (grandparent.Left == p_parent && p_parent.Left == p)
-                {
-                    // Right-Right Rotation 
-                    grandparent.Left = RightRotate(p_parent);
-                }
-                else if (grandparent.Left == p_parent && p_parent.Right == p)
-                {
-                    // Right-Left Rotation 
-                    p_parent.Right = LeftRotate(p);
-                    grandparent.Left = RightRotate(p_parent);
-                }
-                else if (grandparent.Right == p_parent && p_parent.Right == p)
-                {
-                    // Left-Left Rotation 
-                    grandparent.Right = LeftRotate(p_parent);
-                }
-                else if (grandparent.Right == p_parent && p_parent.Left == p)
-                {
-                    // Left-Right Rotation 
-                    p_parent.Left = RightRotate(p);
-                    grandparent.Right = LeftRotate(p_parent);
-                }
-            }
+            Splay(accessPath.Pop(), accessPath);
+            return true;
         }
-        root = p; // Set the root to the final splayed node
+        return false;
     }
 
-    //public SplayTree<Node<T>> Undo()
-    //{
-    //    SplayTree<Node<T>> a = new SplayTree<T>();
-
-    //    return a;
-    //}
 }
 
 class Program
@@ -342,35 +385,58 @@ class Program
     {
         SplayTree<int> T = new SplayTree<int>();
         SplayTree<int> DeepCopy = new SplayTree<int>();
+        SplayTree<int> hardCode = new SplayTree<int>();
+        hardCode.root = new Node<int>(50);
+        hardCode.root.Right = new Node<int>(70);
+        hardCode.root.Left = new Node<int>(30);
+        hardCode.root.Right.Right = new Node<int>(80);
+        hardCode.root.Right.Left = new Node<int>(60);
+        hardCode.root.Left.Right = new Node<int>(40);
+        hardCode.root.Left.Left = new Node<int>(20);
+
+        hardCode.Insert(10);
+        hardCode.Print();
+        Console.WriteLine("----------------------");
+        DeepCopy = (SplayTree<int>)hardCode.Clone();
+        DeepCopy.Print();
+
+        hardCode.Equals(DeepCopy);
 
 
-        for (int i = 1; i <= 4; i++)
-        {
-            T.Insert(i * 10);
-        }
+        hardCode.Contains(60);
+        //hardCode.Insert(75);
+        //hardCode.Print();
+
+        //hardCode.Insert(45);
+        //hardCode.Print();
+
+
+        //T.Insert(10);
         //T.Insert(23);
+        //T.Insert(60);
 
-        // TESTING: Creates Deep copy of T and Compares each tree to see if they are equal
-        Console.WriteLine("\n \nCreates Deep copy of T and Compares each tree to see if they are equal\n-------------------");
-        DeepCopy = (SplayTree<int>)T.Clone();
-        T.Print();
-        DeepCopy.Print();
-        T.Equals(DeepCopy);
+        //// TESTING: Creates Deep copy of T and Compares each tree to see if they are equal
+        //Console.WriteLine("\n \nCreates Deep copy of T and Compares each tree to see if they are equal\n-------------------");
+        //DeepCopy = (SplayTree<int>)T.Clone();
+        //T.Print();
+        //DeepCopy.Print();
+        //T.Equals(DeepCopy);
+        //throw new InvalidOperationException();
 
-        // TESTING: Inserts 56 and Removes 30 from T, then Compares T and the previous Deep Copy
-        Console.WriteLine("\nInserts 56 and Removes 30 from T, then Compares T and the previous Deep Copy\n-------------------");
-        //T.Contains(30);
-        //---------//
-        T.Print();
-        DeepCopy.Print();
-        T.Equals(DeepCopy);
+        //// TESTING: Inserts 56 and Removes 30 from T, then Compares T and the previous Deep Copy
+        //Console.WriteLine("\nInserts 56 and Removes 30 from T, then Compares T and the previous Deep Copy\n-------------------");
+        ////T.Contains(30);
+        ////---------//
+        //T.Print();
+        //DeepCopy.Print();
+        //T.Equals(DeepCopy);
 
-        // TESTING: Recreates a new Deep Copy of T, then Compares T with new Deep Copy 
-        Console.WriteLine("\nRecreates a new Deep Copy of T, then Compares T with new Deep Copy\n-------------------");
-        DeepCopy = (SplayTree<int>)T.Clone();
-        T.Print();
-        DeepCopy.Print();
-        T.Equals(DeepCopy);
-        Console.ReadKey();
+        //// TESTING: Recreates a new Deep Copy of T, then Compares T with new Deep Copy 
+        //Console.WriteLine("\nRecreates a new Deep Copy of T, then Compares T with new Deep Copy\n-------------------");
+        //DeepCopy = (SplayTree<int>)T.Clone();
+        //T.Print();
+        //DeepCopy.Print();
+        //T.Equals(DeepCopy);
+        //Console.ReadKey();
     }
 }
