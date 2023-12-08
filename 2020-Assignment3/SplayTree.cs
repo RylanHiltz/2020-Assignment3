@@ -321,7 +321,7 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
                             }
                             else
                             {
-                                RightRotate(n3);
+                                RightRotate(n2);
                                 root = p;
                             }
                         }
@@ -357,7 +357,7 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
                             }
                             else
                             {
-                                LeftRotate(n3);
+                                LeftRotate(n2);
                                 root = p;
                             }
                         }
@@ -373,7 +373,7 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
                             }
                             else
                             {
-                                RightRotate(n3);
+                                LeftRotate(n3);
                                 root = p;
                             }
                         }
@@ -423,8 +423,12 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
     public SplayTree<T> Undo()
     {
         SplayTree<T> undo = new SplayTree<T>();
+        Node<T> curr = root;
 
-        
+        while (curr.Left != null && curr.Right != null)
+        {
+
+        }
 
         return undo;
     }
@@ -437,18 +441,18 @@ class Program
     {
         SplayTree<int> T = new SplayTree<int>();
         SplayTree<int> DeepCopy = new SplayTree<int>();
-        SplayTree<int> hardCode = new SplayTree<int>();
-        hardCode.root = new Node<int>(50);
-        hardCode.root.Right = new Node<int>(70);
-        hardCode.root.Left = new Node<int>(30);
-        hardCode.root.Right.Right = new Node<int>(80);
-        hardCode.root.Right.Left = new Node<int>(60);
-        hardCode.root.Left.Left = new Node<int>(20);
-        hardCode.Print();
+
         Console.WriteLine("-------------\n");
 
-        hardCode.Insert(40);
-        hardCode.Print();
+        for (int i = 0; i < 20; i++)
+        {
+            Random rand = new Random();
+            int number = rand.Next(0, 100); //returns random number between 0-99
+
+            T.Insert(number);
+        }
+        T.Print();
+
 
         //// TESTING: Creates Deep copy of T and Compares each tree to see if they are equal
         //Console.WriteLine("\n \nCreates Deep copy of T and Compares each tree to see if they are equal\n-------------------");
