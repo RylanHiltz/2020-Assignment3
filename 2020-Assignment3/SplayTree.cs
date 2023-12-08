@@ -163,7 +163,7 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
         // Throws an exception if the tree does not exist
         if (root == null)
         {
-            throw new InvalidOperationException("Splay Tree does not exist.");
+            return null;
         }
 
         // Create new node to copy root 
@@ -190,7 +190,7 @@ class SplayTree<T> : ISearchable<T> where T : IComparable
         }
         else if (equals == false)
         {
-            Console.WriteLine("Tree are not identical");
+            Console.WriteLine("Trees are not identical");
             return false;
         }
         else
@@ -442,39 +442,37 @@ class Program
         SplayTree<int> T = new SplayTree<int>();
         SplayTree<int> DeepCopy = new SplayTree<int>();
 
-        Console.WriteLine("-------------\n");
-
-        for (int i = 0; i < 20; i++)
+        // TESTING: Creates a Splay Tree and inserts nodes using the stack
+        for (int i = 1; i < 7; i++)
         {
-            Random rand = new Random();
-            int number = rand.Next(0, 100); //returns random number between 0-99
-
-            T.Insert(number);
+            T.Insert(i * 10);
         }
+        T.Insert(35);
         T.Print();
 
 
-        //// TESTING: Creates Deep copy of T and Compares each tree to see if they are equal
-        //Console.WriteLine("\n \nCreates Deep copy of T and Compares each tree to see if they are equal\n-------------------");
-        //DeepCopy = (SplayTree<int>)T.Clone();
-        //T.Print();
-        //DeepCopy.Print();
-        //T.Equals(DeepCopy);
+        // TESTING: Creates Deep copy of T and Compares each tree to see if they are equal
+        Console.WriteLine("\n \nCreates Deep copy of T and Compares each tree to see if they are equal\n-------------------");
+        DeepCopy = (SplayTree<int>)T.Clone();
+        T.Print();
+        DeepCopy.Print();
+        T.Equals(DeepCopy);
 
-        //// TESTING: Inserts 56 and Removes 30 from T, then Compares T and the previous Deep Copy
-        //Console.WriteLine("\nInserts 56 and Removes 30 from T, then Compares T and the previous Deep Copy\n-------------------");
-        ////T.Contains(30);
-        ////---------//
-        //T.Print();
-        //DeepCopy.Print();
-        //T.Equals(DeepCopy);
+        // TESTING: Inserts 46 into T, then Compares T and the previous Deep Copy
+        Console.WriteLine("\nInserts 46 into T, then Compares T and the previous Deep Copy\n-------------------");
+        T.Insert(46);
+        T.Print();
+        DeepCopy.Print();
+        T.Equals(DeepCopy);
 
-        //// TESTING: Recreates a new Deep Copy of T, then Compares T with new Deep Copy 
-        //Console.WriteLine("\nRecreates a new Deep Copy of T, then Compares T with new Deep Copy\n-------------------");
-        //DeepCopy = (SplayTree<int>)T.Clone();
-        //T.Print();
-        //DeepCopy.Print();
-        //T.Equals(DeepCopy);
-        //Console.ReadKey();
+        // TESTING: Recreates a new Deep Copy of T, then Compares T with new Deep Copy 
+        Console.WriteLine("\nRecreates a new Deep Copy of T, then Compares T with new Deep Copy\n-------------------");
+        DeepCopy = (SplayTree<int>)T.Clone();
+        T.Print();
+        DeepCopy.Print();
+        T.Equals(DeepCopy);
+
+
+        Console.ReadKey();
     }
 }
